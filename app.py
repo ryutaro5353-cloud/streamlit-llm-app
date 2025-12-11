@@ -39,21 +39,32 @@ st.write(
 # =========================
 #  OpenAI / LLM の準備
 # =========================
-# 環境変数から API キーを取得（Streamlit Cloud では Secrets に設定推奨）
-openai_api_key = os.getenv("OPENAI_API_KEY")
+# 環境変数または Streamlit Secrets から API キーを取得
+try:
+    openai_api_key = os.getenv("OPENAI_API_KEY") or st.secrets.get("OPENAI_API_KEY")
+except:
+    openai_api_key = os.getenv("OPENAI_API_KEY")
 
 if not openai_api_key:
-    st.warning(
-        "環境変数 `OPENAI_API_KEY` が設定されていません。"
-        "ローカルでは `.env` やシェルに設定し、"
-        "Streamlit Community Cloud では Secrets に設定してください。"
+    st.error(
+        "⚠️ **APIキーが設定されていません！**\n\n"
+        "Streamlit Community Cloud では以下の手順で設定してください：\n"
+        "1. 画面右下の「Manage app」をクリック\n"
+        "2. 「Settings」→「Secrets」を選択\n"
+        "3. 以下を入力して保存：\n"
+        "```\n"
+        'OPENAI_API_KEY = "sk-your-api-key-here"\n'
+        "```\n"
+        "4. アプリを再起動"
     )
+    st.stop()
 
 # LangChain の LLM インスタンス
 # model はお好みで変更可（例: "gpt-4o-mini" など）
 llm = ChatOpenAI(
     model="gpt-4o-mini",
     temperature=0.7,
+    api_key=openai_api_key,
 )
 
 
